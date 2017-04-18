@@ -1,0 +1,73 @@
+<#Retorna usuários da lixeira do office 365#>
+Get-MsolUser -ReturnDeletedUsers | fl UserPrincipalName,ObjectID
+
+<#Apagar usuário da lixeira do office 365#>
+Remove-MsolUser -RemoveFromRecycleBin –ObjectId <id>
+
+<#Alteração de atributo específico de usuário no active Directory#>
+Get-ADUser -Identity $sAMAccountName -Properties employeeType | Set-ADUser -Replace @{employeeType=$employeeType}
+
+
+$sAMAccountName="AMOMM"
+
+Get-ADUser -Identity $sAMAccountName -Properties cn | Set-ADUser -Replace @{cn=$sAMAccountName}
+
+<#Script exemplo#>
+
+
+#################################
+# Script to update attributes for Active Directory users
+# 
+# Script by SLCSysAdmin - please credit and link!
+# http://slcsysadmin.blogspot.com
+#
+# NOTE: be sure that "Active Directory Module for Windows PowerShell" 
+# is loaded in PowerShell before running
+#################################
+ 
+$dataSource=import-csv "AccountList.csv"
+foreach($dataRecord in $datasource) {
+$sAMAccountName=$dataRecord.sAMAccountName
+ 
+# List of attributes to update
+$employeeType=$dataRecord.employeeType
+$department=$dataRecord.department
+ 
+# NOTE: For the following item, the extra code is necessary because "employeeType" is not 
+# one of the "commonly used property values" as found in the following list:
+# http://technet.microsoft.com/en-us/library/ee617215.aspx
+Get-ADUser -Identity $sAMAccountName -Properties employeeType | Set-ADUser -Replace @{employeeType=$employeeType}
+ 
+# NOTE: The following is much simpler because "department" is one of the common property values
+Get-ADUser -Identity $sAMAccountName | Set-ADUser -Department $department
+}
+
+
+It is worth mentioning for first-timers that your column names in your CSV file need to match what you're doing in your script. For example, my CSV file would look like this for use with the code above:
+
+sAMAccountName,employeeType,department
+usernameA,1234,IS
+usernameB,9876,BB
+...
+usernameZ,3476,ZZ	
+
+
+
+ 
+[math]::Round($a,2) -> Arredondamento de duas casas decimais
+https://support.microsoft.com/en-us/kb/2846548
+
+Get-Mailbox -Resultsize unlimited | Get-MailboxRegionalConfiguration >d:\RelatorioTimeZone.txt 
+
+
+
+
+Set-MailboxRegionalConfiguration -Identity TestMbx08@unisinos.br -Language en-US -DateFormat “M/d/yyyy” -timezone “W. Europe Standard Time” -timeformat “HH:mm”
+
+http://www.windowsnetworking.com/articles-tutorials/windows-server-2012/remote-management-powershell-part1.html
+
+http://www.vspbreda.nl/nl/ms-office/office-365/solved-office-365-bulk-set-language-and-time-zone-for-all-users-in-office-365/
+
+http://www.windowsnetworking.com/articles-tutorials/windows-server-2012/remote-management-powershell-part1.html
+
+https://gallery.technet.microsoft.com/scriptcenter/SnippetManager-Injector-3-89eaf7a7
