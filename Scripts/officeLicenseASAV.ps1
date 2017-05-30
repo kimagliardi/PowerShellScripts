@@ -30,7 +30,7 @@ foreach($line in $csv){
 
         if($line.TEAMS1 -eq "Disabled"){$DisabledPlans +="TEAMS1"}
         if($line.INTUNE_O365 -eq "Disabled"){$DisabledPlans +="INTUNE_O365"}
-        if($line.Deskless -eq "Disabled" -OR $p){$DisabledPlans +="Deskless"}
+        if($line.Deskless -eq "Disabled"){$DisabledPlans +="Deskless"}
         if($line.FLOW_O365_P2 -eq "Disabled"){$DisabledPlans +="FLOW_O365_P2"}
         if($line.POWERAPPS_O365_P2 -eq "Disabled"){$DisabledPlans +="POWERAPPS_O365_P2"}
         if($line.RMS_S_ENTERPRISE -eq "Disabled"){$DisabledPlans +="RMS_S_ENTERPRISE"}

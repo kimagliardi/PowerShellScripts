@@ -6,11 +6,15 @@ RENAME-COMPUTER -computername $env:COMPUTERNAME -NewName $computer
 netsh int ipv6 isatap set state disabled
 netsh int ipv6 6to4 set state disabled
 netsh interface teredo set state disable
-
+#Desabilitando ARP (apenas para VM's)
+New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters -Name ArpRetryCount -PropertyType DWORD -Value "0" –Force
+#Desabilitando ipv6
+New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\TCPIP6\Parameters -Name DisabledComponents -PropertyType DWORD -Value "4294967295" –Force
 # Opcões de Firewall
+
 Import-Module NetSecurity
 New-NetFirewallRule -Name Allow_Ping -DisplayName “Allow Ping”  -Description “Packet Internet Groper ICMPv4” -Protocol ICMPv4 -IcmpType 8 -Enabled True -Profile Any -Action Allow
-
+New-NetFirewallRule -Name Allow_Ping -DisplayName “Allow Ping”  -Description “File And Printer Sharing (Echo Request - ICMPv4-In)” -Protocol ICMPv4 -IcmpType 8 -Enabled True -Profile Any -Action Allow
 ## Desabilitando opcões na placa de rede
 Disable-NetAdapterBinding -Name "Ethernet0" -ComponentID ms_rspndr
 Disable-NetAdapterBinding -Name "Ethernet0" -ComponentID ms_lltdio
