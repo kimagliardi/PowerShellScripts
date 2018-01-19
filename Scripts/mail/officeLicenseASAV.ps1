@@ -5,29 +5,14 @@
 $csv = import-csv $userfile -Delimiter ";" #Importação do CSV com nome de usuários, licenças, etc..
 $AccountSku; #Variável que informa o grupo de licenças que deve ser utilizado..EX: F
  
- #Bloco de conexao ao Office365
-################################################
-Import-Module MSOnline
-#Remove as possiveis sessoes ativas
-Get-PSSession | Remove-PSSession
-
-#Obtem as credenciais para logon
-$Office365Credentials  = Get-Credential
-
-#Cria a sessao remota do Powershell
-$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.outlook.com/powershell -Credential $Office365credentials -Authentication Basic -AllowRedirection
-
-#Importa a sessao
-write-host "Aguarde a criacao da sessao remota..."
-Import-PSSession $Session -AllowClobber | Out-Null
-Connect-MsolService -Credential $Office365Credentials
-#################################################
 
 foreach($line in $csv){
         #esse grande bloco de "if's" vai remover a licença do usuário caso o campo do app esteja como "disabled" no CSV importado
         #Nota: Como o comando de licenciamento leva em conta apenas o que deve ser desabilitado, não é necessário incluir um "else" nestas comparações.
         $DisabledPlans = @(); #Variável que será utilizada para informar as licenças que não devem ser habilitadas para o usuário.
-
+        
+        if($line.SCHOOL_DATA_SYNC_P1 -eq "Disabled"){$DisabledPlans +="SCHOOL_DATA_SYNC_P1"}
+        if($line.STREAM_O365_E3 -eq "Disabled"){$DisabledPlans +="STREAM_O365_E3"}
         if($line.TEAMS1 -eq "Disabled"){$DisabledPlans +="TEAMS1"}
         if($line.INTUNE_O365 -eq "Disabled"){$DisabledPlans +="INTUNE_O365"}
         if($line.Deskless -eq "Disabled"){$DisabledPlans +="Deskless"}
@@ -54,6 +39,7 @@ foreach($line in $csv){
                 Set-MsolUserLicense -UserPrincipalName $line.UserPrincipalName -LicenseOptions $myO365Sku1
 
             }else{ 
+                Write-Host "Licenciando usuario: " $line.UserPrincipalName
                 Set-MsolUser -UserPrincipalName $line.UserPrincipalName -UsageLocation BR
                 Set-MsolUserLicense -UserPrincipalName $line.UserPrincipalName -AddLicenses $AccountSku -LicenseOptions $myO365Sku1
             }
